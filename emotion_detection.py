@@ -1,4 +1,30 @@
-  emotions = response_json['emotion']['document']['emotion']
+import requests
+import json
+
+def emotion_detector(text_to_analyze):
+    """
+    Run emotion detection on the input text using the Watson NLP Library.
+
+    Args:
+        text_to_analyze (str): The text to be analyzed for emotions.
+
+    Returns:
+        dict: A dictionary containing the scores for anger, disgust, fear, joy, and sadness, along with the dominant emotion.
+    """
+    url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
+    headers = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
+    input_json = {"raw_document": {"text": text_to_analyze}}
+
+    response = requests.post(url, headers=headers, json=input_json)
+
+    if response.status_code == 200:
+        response_json = response.json()
+        print("Response JSON:", response_json)
+        try:
+            return response_json['emotion']['document']['emotion']['targets'][0]['target']
+        except KeyError as e:
+            print("KeyError:", e)
+            return None
 
         # Initialize emotion scores
         anger_score = 0
@@ -36,6 +62,6 @@
         return None
 
 # Example usage:
-text = "This is a sample text to analyze"
-result = emotion_detector(text)
+text_to_analyze=input("Enter")
+result = emotion_detector(text_to_analyze)
 print(result)
